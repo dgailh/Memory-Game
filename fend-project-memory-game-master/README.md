@@ -6,6 +6,13 @@
 * [Contributing](#contributing)
 
 ## Instructions
+how to play:
+1- pick two different cards.
+2- if matched then pick new cards to continue playing.
+3- if cards didnt match click on unpicked card to reset the cards.
+4- you can reset the game by pressing the restart icon on top right of the baord.
+5- number of stars and moves shows on top left of the baord.
+6- after compeletion you can press the restart icon to play again.
 
 The starter project has some HTML and CSS styling to display a static version of the Memory Game project. You'll need to convert this project from a static project to an interactive one. This will require modifying the HTML and CSS files, but primarily the JavaScript file.
 
@@ -21,4 +28,5 @@ For details, check out [CONTRIBUTING.md](CONTRIBUTING.md).
 
 
 ## credits
+shuffle method:
 https://stackoverflow.com/questions/7070054/javascript-shuffle-html-list-element-order
