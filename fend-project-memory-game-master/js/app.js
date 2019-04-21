@@ -1,84 +1,95 @@
-/*
- * Display the cards on the page
- *   - shuffle the list of cards using the provided "shuffle" method below
- *   - loop through each card and create its HTML
- *   - add each card's HTML to the page
- */
+/*Javascript file for the memory game*/
+restartGame();
+const restart = document.getElementById("restart_game");
+restart.addEventListener("click", restartGame);
+/* resetting everything */
+firstCard = false;
+secondCard = false;
+/* to hold the data of first card */
+var firstCardClass = "";
+/* to hold the data of second card */
+var secondCardClass = "";
+numberOfMoves = 0;
+numberOfMatches = 0;
 
-// Shuffle function from http://stackoverflow.com/a/2450976
+function restartGame() {
+	firstCard = false;
+	secondCard = false;
+	numberOfMoves = 0;
+	numberOfMatches = 0;
+	document.getElementById("moves").innerText = numberOfMoves;
+	const deck = document.getElementById('game_deck');
+	for (var i = deck.children.length; i >= 0; i--) {
+		deck.appendChild(deck.children[Math.random() * i | 0]);
+	}
+	const card = document.getElementsByClassName("card");
+	for (var i = card.length - 1; i >= 0; i--) {
+		card[i].className = "card";
+	}
+	stars();
+}
+document.addEventListener("click", function(evt) {
+	if (evt.target.className == "card") {
+		madeAMove(evt)
+	}
+})
 
-	const restart = document.getElementById("restart_game");
-	restart.addEventListener("click",restartGame);
-
-	var firstCard = false;
-	var firstCardClass = "";
-
-	/*fliping all the cards and randomize them again 
-	still need to restart starts -- didnt emplement yet. //todo
-
-
-	*/
-	function restartGame(){
+function madeAMove(evt) {
+	/* two cards areadly displayed */
+	if (firstCard && secondCard) {
+		firstCardClass.target.className = "card";
+		secondCardClass.target.className = "card";
 		firstCard = false;
-		const ul = document.getElementById('game_deck');
-		for (var i = ul.children.length; i >= 0; i--) {
-    		ul.appendChild(ul.children[Math.random() * i | 0]);
-		}
-		const li = document.getElementsByClassName("card");
-		for (var i = li.length - 1; i >= 0; i--) {
-			li[i].className ="card";
-		}
-
-		
+		secondCard = false;
+		return;
 	}
-
-	document.addEventListener("click", function(evt){
-		if (evt.target.className=="card") {
-			showImage(evt)
-		}
-		/*else if (evt.target.className=="card open show") {
-			hideImage(evt)
-		}*/
-	})
-
-function showImage(evt) =async () =>{
-	evt.target.className ="card open show"
+	evt.target.className = "card open show"
 	if (!firstCard) {
-	firstCard =true;
-	firstCardClass = evt;
+		firstCard = true;
+		firstCardClass = evt;
 	}
-	else {
-		await delay(3000);
+	/* second card just got picked. */
+	else if (!secondCard) {
 		/*match*/
+		numberOfMoves++;
+		decreaseAStar();
 		if (evt.target.firstChild.nextSibling.className == firstCardClass.target.firstChild.nextSibling.className) {
-			evt.target.className ="card match";
-			firstCardClass.target.className ="card match";
-
+			evt.target.className = "card match";
+			firstCardClass.target.className = "card match";
+			firstCard = false;
+			secondCard = false;
+			numberOfMatches++;
+			finished();
 		}
 		/*no match*/
 		else {
-			evt.target.className ="card";
-			firstCardClass.target.className ="card";
+			secondCard = true;
+			secondCardClass = evt;
 		}
-		firstCard =false;
+	}
+}
+/*reseting stars */
+function stars() {
+	document.getElementById("first_star").className = "fa fa-star";
+	document.getElementById("second_star").className = "fa fa-star";
+	document.getElementById("third_star").className = "fa fa-star";
+}
+
+function decreaseAStar() {
+	document.getElementById("moves").innerText = numberOfMoves;
+	if (numberOfMoves == 15) {
+		document.getElementById("third_star").className = "fa fa-star-o";
+	} else if (numberOfMoves == 25) {
+		document.getElementById("second_star").className = "fa fa-star-o";
+	} else if (numberOfMoves == 35) {
+		document.getElementById("first_star").className = "fa fa-star-o";
 	}
 }
 
-
-function hideImage(evt){
-	evt.target.className ="card"
+function finished() {
+	if (numberOfMatches == 8) {
+		alert("you made it in " + numberOfMoves + " tries");
+	} else {
+		return
+	}
 }
-
-/*wait better than timeout */
-const delay = ms => new Promise(res => setTimeout(res, ms));
-
-/*
- * set up the event listener for a card. If a card is clicked:
- *  - display the card's symbol (put this functionality in another function that you call from this one)
- *  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
- *  - if the list already has another card, check to see if the two cards match
- *    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
- *    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
- *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
- *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
- */
