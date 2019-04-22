@@ -5,31 +5,45 @@ restart.addEventListener("click", restartGame);
 /* resetting everything */
 firstCard = false;
 secondCard = false;
+/*to stop the user from fast clicking and wait till the cards are flipped back*/
+holdUserFromClicking = false;
 /* to hold the data of first card */
-var firstCardClass = "";
+let firstCardClass = "";
 /* to hold the data of second card */
-var secondCardClass = "";
+let secondCardClass = "";
 numberOfMoves = 0;
 numberOfMatches = 0;
+var sec = 0;
+
+function pad(val) {
+	return val > 9 ? val : "0" + val;
+}
+setInterval(function() {
+	document.getElementById("seconds").innerHTML = pad(++sec % 60);
+	document.getElementById("minutes").innerHTML = pad(parseInt(sec / 60, 10));
+}, 1000);
 
 function restartGame() {
 	firstCard = false;
 	secondCard = false;
 	numberOfMoves = 0;
 	numberOfMatches = 0;
+	sec = 0;
 	document.getElementById("moves").innerText = numberOfMoves;
 	const deck = document.getElementById('game_deck');
-	for (var i = deck.children.length; i >= 0; i--) {
+	for (let i = deck.children.length; i >= 0; i--) {
 		deck.appendChild(deck.children[Math.random() * i | 0]);
 	}
 	const card = document.getElementsByClassName("card");
-	for (var i = card.length - 1; i >= 0; i--) {
+	for (let i = card.length - 1; i >= 0; i--) {
 		card[i].className = "card";
 	}
 	stars();
 }
 document.addEventListener("click", function(evt) {
-	if (evt.target.className == "card") {
+	if (holdUserFromClicking) {
+		return
+	} else if (evt.target.className == "card") {
 		madeAMove(evt)
 	}
 })
@@ -41,6 +55,7 @@ function madeAMove(evt) {
 		secondCardClass.target.className = "card";
 		firstCard = false;
 		secondCard = false;
+		holdUserFromClicking = false;
 		return;
 	}
 	evt.target.className = "card open show"
@@ -53,7 +68,7 @@ function madeAMove(evt) {
 		/*match*/
 		numberOfMoves++;
 		decreaseAStar();
-		if (evt.target.firstChild.nextSibling.className == firstCardClass.target.firstChild.nextSibling.className) {
+		if (evt.target.firstChild.className == firstCardClass.target.firstChild.className) {
 			evt.target.className = "card match";
 			firstCardClass.target.className = "card match";
 			firstCard = false;
@@ -63,8 +78,12 @@ function madeAMove(evt) {
 		}
 		/*no match*/
 		else {
-			secondCard = true;
-			secondCardClass = evt;
+			holdUserFromClicking = true;
+			setTimeout(function() {
+				secondCard = true;
+				secondCardClass = evt;
+				madeAMove(evt); // calling this will flip the cards on their backs if they did not match.
+			}, 700);
 		}
 	}
 }
@@ -88,7 +107,25 @@ function decreaseAStar() {
 
 function finished() {
 	if (numberOfMatches == 8) {
-		alert("you made it in " + numberOfMoves + " tries");
+		/*the alert message*/
+		let minutes = document.getElementById("minutes").innerHTML;
+		let seconds = document.getElementById("seconds").innerHTML;
+		swal("You won in " + minutes + ":" + seconds + " \nAnd " + numberOfMoves + " moves!\nWhat do you want to do?", {
+			buttons: {
+				cancel: "Close",
+				again: {
+					text: "Play Again",
+					value: "again",
+				}
+			},
+		}).then((value) => {
+			switch (value) {
+				case "again":
+					restartGame();
+					break;
+				default:
+			}
+		});
 	} else {
 		return
 	}
